@@ -1,0 +1,23 @@
+services:
+    create.media_file.handler:
+        class: App\Service\Command\MediaFile\CreateMediaFileHandler
+        arguments:
+            $em: '@doctrine.orm.default_entity_manager'
+            $imagineFilter: '@liip_imagine.service.filter'
+            $imagineManager: '@liip_imagine.cache.manager'
+            $publicMediaStorage: '@public.media.storage'
+        tags:
+            - { name: tactician.handler, typehints: true }
+    load.media_file.handler:
+        class: App\Service\Command\MediaFile\LoadMediaFileHandler
+        arguments:
+            $cacheManager: '@liip_imagine.cache.manager'
+            $em: '@doctrine.orm.default_entity_manager'
+        tags:
+            - { name: tactician.handler, typehints: true }
+    delete.media_file.handler:
+        class: App\Service\Command\MediaFile\DeleteMediaFileHandler
+        arguments:
+            $em: '@doctrine.orm.default_entity_manager'
+        tags:
+            - { name: tactician.handler, typehints: true }
