@@ -84,7 +84,7 @@ const methods = {
         }, 3000)
     },
     loadFiles() {
-        if (JSON.parse(getFromStorage()).length > 0) {
+        if (getFromStorage() && JSON.parse(getFromStorage()).length > 0) {
             const ids = JSON.parse(getFromStorage())
             axios.post('/load', {
                 ids: ids
