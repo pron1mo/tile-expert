@@ -31,24 +31,27 @@ class CreateMediaFileHandler
 
     public function handle(CreateMediaFileCommand $command)
     {
+        $stream = file_get_contents($command->getUrl());
+        $filename = sha1(uniqid(Uuid::uuid4(), true)) . '.';
+        $result = $this->storage->write('media/' . $filename . 'png', $stream);
+        if ($result === false) {
+            return 'Не удалось сохранить загружаемый файл.';
+        }
         try {
-            $exif = exif_read_data($command->getUrl(), 'FILE, COMPUTED', true);
+            $exif = exif_read_data($stream, 'FILE, COMPUTED', true);
         } catch (\Exception $e) {
-            return 'Ссылка без изображения. Попробуйте ввести другую';
+            $size = getimagesize('uploads/media/' . $filename . 'png');
+            $exif["FILE"]["MimeType"] = $this->storage->mimeType('media/'. $filename . 'png');
+            $exif["FILE"]["FileSize"] = $this->storage->fileSize('media/'. $filename . 'png');
+            $exif["COMPUTED"]["Width"] = $size[0];
+            $exif["COMPUTED"]["Height"] = $size[1];
+            dump($exif);
         }
 
         $mimeType = $exif["FILE"]["MimeType"];
         $fileSize = $exif["FILE"]["FileSize"];
         $acceptedResolution = ($exif["COMPUTED"]["Height"] >= 200 && $exif["COMPUTED"]["Width"] >= 200);
         if ($exif && in_array($mimeType, $this->allowedMimeTypes) && $acceptedResolution) {
-
-            $stream = file_get_contents($command->getUrl());
-            $filename = sha1(uniqid(Uuid::uuid4(), true)) . '.';
-            $result = $this->storage->write('media/' . $filename . 'png', $stream);
-
-            if ($result === false) {
-                return 'Не удалось сохранить загружаемый файл.';
-            }
 
             $media = new MediaFile();
             $media->setFilename($filename . 'png');
@@ -66,6 +69,9 @@ class CreateMediaFileHandler
                 'src' => $url
             ];
         } else {
+            if ($this->storage->fileExists('media/'. $filename . 'png')){
+                $this->storage->delete('media/'. $filename . 'png');
+            }
             return 'Не подходящий файл, попробуйте ввести другой URL.';
         }
     }

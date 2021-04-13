@@ -19,5 +19,6 @@ services:
         class: App\Service\Command\MediaFile\DeleteMediaFileHandler
         arguments:
             $em: '@doctrine.orm.default_entity_manager'
+            $publicMediaStorage: '@public.media.storage'
         tags:
             - { name: tactician.handler, typehints: true }
