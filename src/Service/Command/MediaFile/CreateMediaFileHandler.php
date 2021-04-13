@@ -45,7 +45,6 @@ class CreateMediaFileHandler
             $exif["FILE"]["FileSize"] = $this->storage->fileSize('media/'. $filename . 'png');
             $exif["COMPUTED"]["Width"] = $size[0];
             $exif["COMPUTED"]["Height"] = $size[1];
-            dump($exif);
         }
 
         $mimeType = $exif["FILE"]["MimeType"];
